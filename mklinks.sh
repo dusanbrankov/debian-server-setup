@@ -3,7 +3,7 @@
 shopt -s dotglob nullglob
 
 # (re)create symbolic links
-for f in dotfiles/*; do
+for f in "$(pwd)"/dotfiles/*; do
     ln -sfv "$f" "$HOME"
 done
 
