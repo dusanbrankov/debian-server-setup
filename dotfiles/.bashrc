@@ -115,6 +115,7 @@ mkwwwdir()
 {
     local dir="$1"
 
+    sudo mkdir "$dir"
     sudo chown "$USER":www-data "$dir"
     sudo chmod 2750 "$dir"
     setfacl -d -m u::rwX -m g::rX -m o::000 "$dir"
