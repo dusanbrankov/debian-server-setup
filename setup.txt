@@ -1,0 +1,121 @@
+# Update and install packages:
+    apt update && apt dist-upgrade
+    apt install -y vim git sudo iptables php-intl php-mbstring php-xml acl nodejs npm composer
+
+# Add user:
+    useradd -m -G sudo,systemd-journal -s /bin/bash darmok
+    echo "Enter password for user darmok:"
+    passwd darmok
+
+# Switch user and configure SSH and firewall:
+    su -l darmok
+    mkdir ~/.ssh && chmod 700 $_
+
+    # Copy SSH public key from local computer to server:
+    dusan@desktop ~ $ ssh-copy-id -i .ssh/id_ed25519.pub darmok@213.199.34.132
+
+    # Now sshd_config can be changed:
+    sudo vim /etc/ssh/sshd_config (check original file with 'diff')
+    sudo systemctl restart ssh
+
+    # Set up firewall:
+    sudo ./firewall.sh
+
+    # ( ! ) IMPORTANT
+    # Keep session alive and try to log in as darmok from another terminal!
+
+    # Generate SSH key:
+    ssh-keygen -t ed25519 -C "dusanbrankov@proton.me"
+    eval "$(ssh-agent -s)"
+    ssh-add .ssh/id_ed25519
+    ssh -T git@github.com
+    cat .ssh/id_ed25519.pub  # add the key to your GitHub account
+
+# Configure Apache and PHP:
+    sudo vim sites-available/000-default.conf
+    sudo apache2ctl configtest
+    sudo systemctl restart apache2.service 
+
+    sudo vim /etc/php/8.2/fpm/php.ini
+    # Enable/uncomment the follwoing extensions:
+    extension=curl
+    extension=intl
+
+    sudo a2enmod rewrite
+    sudo a2enmod headers
+    sudo a2enmod proxy
+    sudo a2enmod proxy_http
+
+# Fix npm permission issue and install yarn:
+    mkdir ~/.npm-global
+    npm config set prefix '~/.npm-global'
+
+    # Update path:
+    export PATH="$HOME/.npm-global/bin:$PATH"
+    source ~/.profile
+    echo $PATH | grep npm
+
+    npm i -g yarn
+
+# Add database and user:
+    mysql -uroot -p < wunderbaum-api.mysql
+    mysql -uwunderbaum_prod -p
+
+# Files and permissions
+    sudo mkdir /var/www/html/wunderbaum && cd $_
+
+    # git clone repos ...
+    git clone git@github.com:dusanbrankov/wunderbaum-api.git
+    git clone git@github.com:dusanbrankov/wunderbaum-admin.git
+    git clone git@github.com:dusanbrankov/wunderbaum-front.git
+    # install dependencies (yarn/composer install)
+
+    sudo chown -R darmok:www-data .
+    find . -type d -exec chmod g+s '{}' +
+    chmod -R u=rwX,g=rX,o= .
+    setfacl -dR -m u::rwX -m g::rX -m o::000 .
+
+    # Set permissions for wunderbaum/api:
+    sudo chmod -R g+w /var/www/html/wunderbaum/api/{storage,bootstrap}
+    # Or writable/ for Code Igniter:
+    # chmod -R g+w writable/
+
+    # Set permissions for admin and front:
+    sudo chmod -R g+w /var/www/html/wunderbaum/{admin,front}/public/images
+
+# Add services for admin and front site:
+    (see /etc/systemd/system/wunderbaum-admin.service)
+    sudo systemctl daemon-reload
+    sudo systemctl enable wunderbaum-admin.service
+    sudo systemctl start wunderbaum-admin.service
+
+# Import database
+    # ON SOURCE SERVER:
+    # export database:
+    mysqldump -u root -p wunderbaum_prod > wunderbaum-data-dump.sql
+
+    # ON DEST SERVER:
+    # create empty 'wunderbaum_prod' database
+    mysql -u root -p < wunderbaum-create-db.sql
+    # import database
+    mysql -u root -p wunderbaum_prod < wunderbaum-data-dump.sql
+
+# Migrate and seed (probably not neccessary because of db import):
+    php spark migrate:status
+    php spark migrate --all
+    php artisan db:seed
+
+    php artisan db:seed --class=PriceTypeTableSeeder  # need to do explicitly?
+
+    # Manual seeder (maybe not neccessary):
+    mysql -uroot -p < language.mysql
+    mysql -uroot -p < price_type.mysql
+
+# Install certbot
+    sudo apt update
+    sudo apt install certbot python3-certbot-apache
+    sudo systemctl stop apache2
+    sudo certbot --apache
+    sudo systemctl start apache2
+    sudo certbot renew --dry-run
+    cd /etc/cron.d
