@@ -21,7 +21,7 @@ alias ll='ls -l'
 alias la='ls -lA'
 
 # bookmarks
-alias gtwww='cd /var/www/html'
+alias gtwww='cd /var/www && ls -lh'
 alias gta2='cd /etc/apache2'
 
 # shorts
