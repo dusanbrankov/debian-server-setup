@@ -47,6 +47,7 @@
     sudo a2enmod proxy_http
 
 # Fix npm permission issue and install yarn:
+    # ( ! ) Must be run from home dir
     mkdir ~/.npm-global
     npm config set prefix '~/.npm-global'
 
