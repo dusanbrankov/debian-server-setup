@@ -9,14 +9,13 @@ case $- in
 esac
 
 # don't put duplicate lines or lines starting with space in the history.
-# See bash(1) for more options
-HISTCONTROL=ignoreboth:erasedups
-export HISTSIZE=3000
-export HISTFILESIZE=3000
-export HISTTIMEFORMAT="%Y/%m/%d %H:%M    "
-export HISTIGNORE="h:history:exit:e:clear:c:..:...:cd:fg"
+HISTCONTROL=ignoreboth
+HISTSIZE=1000
+HISTFILESIZE=3000
+HISTTIMEFORMAT="%Y/%m/%d %H:%M    "
+HISTIGNORE="h:hg*:htod:history:e:exit:c:clear:cd:-:..*:fg:j:ls*:ll*:l1*:ga *:gc:gcm *:gl:gpl:gplr:gpsf:gps:gr *:grs *:gst:gs:sudo apache2ctl -t"
 
-[ -x /usr/bin/vim ] && export EDITOR=/usr/bin/vim
+[ -x /usr/bin/vim ] && EDITOR=/usr/bin/vim
 
 # base directories for cd command
 CDPATH=.:~:/var/www
@@ -64,7 +63,7 @@ if [ -n "$force_color_prompt" ]; then
 fi
 
 if [ "$color_prompt" = yes ]; then
-    PS1='${debian_chroot:+($debian_chroot)}\[$(tput setaf 2)\]\u@\h:\[$(tput setaf 5)\]\w\[$(tput sgr0)\]\$ '
+    PS1='${debian_chroot:+($debian_chroot)}\[$(tput setaf 2)\]\u@\h:\[$(tput setaf 6)\]\w\[$(tput sgr0)\]\$ '
 else
     PS1='${debian_chroot:+($debian_chroot)}\u@\h:\w\$ '
 fi
@@ -118,7 +117,8 @@ mkwwwdir()
     sudo mkdir "$dir"
     sudo chown "$USER":www-data "$dir"
     sudo chmod 2750 "$dir"
-    setfacl -d -m u::rwX -m g::rX -m o::000 "$dir"
+
+    sudo setfacl -d -m u::rwX -m g::rX -m o::000 "$dir"
     getfacl "$dir"
 
     # after that, cd into dir and 'clone git repo .'

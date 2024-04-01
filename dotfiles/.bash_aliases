@@ -22,7 +22,8 @@ alias la='ls -lA'
 
 # bookmarks
 alias gtwww='cd /var/www && ls -lh'
-alias gta2='cd /etc/apache2'
+alias gta2='cd /etc/apache2 && sudo ${EDITOR:-vi} .'
+alias gtsys='cd /etc/systemd/system && ls -lh'
 
 # shorts
 alias a='${EDITOR:-vi} $HOME/.bash_aliases'
