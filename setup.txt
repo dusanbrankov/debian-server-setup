@@ -120,3 +120,20 @@
     sudo systemctl start apache2
     sudo certbot renew --dry-run
     cd /etc/cron.d
+
+# Install unattended upgrades
+    sudo apt update
+    sudo apt install unattended-upgrades apt-config-auto-update
+
+    # Configure
+    sudo vim /etc/apt/apt.conf.d/50unattended-upgrades
+    # Apply changes by running
+    sudo unattended-upgrades --dry-run --debug
+    sudo unattended-upgrades
+    # Ensure that the apt configuration stub `/etc/apt/apt.conf.d/20auto-upgrades` contains at least the following lines:
+        APT::Periodic::Update-Package-Lists "1";
+        APT::Periodic::Unattended-Upgrade "1";
+    # If not, the file can be created by running
+    sudo dpkg-reconfigure -plow unattended-upgrades
+    # For more info, see https://wiki.debian.org/UnattendedUpgrades
+    # Log files: /var/log/unattended-upgrades
