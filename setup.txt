@@ -6,6 +6,8 @@
     useradd -m -G sudo,systemd-journal -s /bin/bash darmok
     echo "Enter password for user darmok:"
     passwd darmok
+# Add systemd user:
+    sudo useradd --system --shell /bin/false ghost 
 
 # Switch user and configure SSH and firewall:
     su -l darmok
