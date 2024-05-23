@@ -116,10 +116,10 @@ mkwwwdir()
 
     sudo mkdir "$dir"
     sudo chown "$USER":www-data "$dir"
-    sudo chmod 2750 "$dir"
-
-    sudo setfacl -d -m u::rwX -m g::rX -m o::000 "$dir"
+    chmod 2750 "$dir"
+    setfacl -d -m u::rwX -m u:ghost:rX -m g::rX -m o::000 "$dir"
+    setfacl -m u:ghost:rx "$dir"
     getfacl "$dir"
 
-    # after that, cd into dir and 'clone git repo .'
+    echo "success, now cd into '$dir' and run 'git clone repo .'"
 }
