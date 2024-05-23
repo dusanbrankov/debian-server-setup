@@ -13,9 +13,9 @@ HISTCONTROL=ignoreboth
 HISTSIZE=1000
 HISTFILESIZE=3000
 HISTTIMEFORMAT="%Y/%m/%d %H:%M    "
-HISTIGNORE="h:hg*:htod:history:e:exit:c:clear:cd:-:..*:fg:j:ls*:ll*:l1*:ga *:gc:gcm *:gl:gpl:gplr:gpsf:gps:gr *:grs *:gst:gs:sudo apache2ctl -t"
+HISTIGNORE="h:htod:history:e:exit:c:clear:cd:-:..*:fg:j:ls:ll:l1:gl:gst:gs"
 
-[ -x /usr/bin/vim ] && EDITOR=/usr/bin/vim
+[ -x /usr/bin/vim ] && export EDITOR=/usr/bin/vim
 
 # base directories for cd command
 CDPATH=.:~:/var/www
@@ -123,3 +123,4 @@ mkwwwdir()
 
     echo "success, now cd into '$dir' and run 'git clone repo .'"
 }
+
