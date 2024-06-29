@@ -7,7 +7,7 @@
     echo "Enter password for user darmok:"
     passwd darmok
 # Add systemd user:
-    sudo useradd --system --shell /bin/false ghost 
+    sudo useradd --system --shell /bin/false ghost
 
 # Switch user and configure SSH and firewall:
     su -l darmok
@@ -36,7 +36,7 @@
 # Configure Apache and PHP:
     sudo vim sites-available/000-default.conf
     sudo apache2ctl configtest
-    sudo systemctl restart apache2.service 
+    sudo systemctl restart apache2.service
 
     sudo vim /etc/php/8.2/fpm/php.ini
     # Enable/uncomment the follwoing extensions:
@@ -139,3 +139,43 @@
     sudo dpkg-reconfigure -plow unattended-upgrades
     # For more info, see https://wiki.debian.org/UnattendedUpgrades
     # Log files: /var/log/unattended-upgrades
+
+# Contabo Object-Storage configuration
+    # Install awscli
+    # https://docs.aws.amazon.com/cli/latest/userguide/getting-started-install.html#getting-started-install-instructions
+    # https://contabo.com/blog/how-to-back-up-mysql-to-object-storage/
+    curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
+    vim awscli_verify_pk # see link above for public key
+    gpg --import awscli_verify_pk
+    curl -o awscliv2.sig https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip.sig
+    gpg --verify awscliv2.sig awscliv2.zip
+    unzip awscliv2.zip
+    sudo ./aws/install
+    aws --version
+    aws configure --profile eu2
+    aws --profile eu2 --region default --endpoint-url https://eu2.contabostorage.com s3 ls
+
+    # Create script for database backup
+    touch db.backup.sh
+    chmod 744 db.backup.sh
+    vim db.backup.sh
+
+    # Create MySQL script for adding a user for backups
+    vim add-backup-user.sql
+    chmod 600 add-backup-user.sql
+    mysql -uroot -p < add-backup-user.sql
+
+    # For credentials MySQL will look for '.my.cnf' file
+    vim .my.cnf
+    chmod 600 .my.cnf
+
+    # Test if script is running correctly
+    shellcheck db.backup.sh
+    sudo ./db.backup.sh
+
+    # Schedule script to run daily
+    sudo crontab -e
+    # Add the following line to run the script every day at 2:00 AM
+    # Redirecting ensures that no email notifications get sent
+        0 2 * * * /home/dusan/db.backup.sh >/dev/null 2>&1
+
