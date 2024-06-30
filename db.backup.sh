@@ -6,6 +6,8 @@ if [[ $EUID -ne 0 ]]; then
    exit 1
 fi
 
+export PATH=/usr/local/bin:$PATH
+
 # Define AWS CLI configuration file paths
 export AWS_CONFIG_FILE="/home/dusan/.aws/config"
 export AWS_SHARED_CREDENTIALS_FILE="/home/dusan/.aws/credentials"
