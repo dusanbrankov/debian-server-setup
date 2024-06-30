@@ -129,6 +129,7 @@
 
     # Configure
     sudo vim /etc/apt/apt.conf.d/50unattended-upgrades
+    sudo dpkg-reconfigure -plow unattended-upgrades
     # Apply changes by running
     sudo unattended-upgrades --dry-run --debug
     sudo unattended-upgrades
