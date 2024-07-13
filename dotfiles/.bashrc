@@ -108,19 +108,3 @@ htod()
     today="$(sed -n -r 's/.*HISTTIMEFORMAT=\"([^ ]+).*\"/\1/p' "$HOME/.bashrc")"
     history | grep --color=never "$(date +"$today")"
 }
-
-# create dir under /var/www and set permissions
-mkwwwdir()
-{
-    local dir="$1"
-
-    sudo mkdir "$dir"
-    sudo chown "$USER":www-data "$dir"
-    chmod 2750 "$dir"
-    setfacl -d -m u::rwX -m u:ghost:rX -m g::rX -m o::000 "$dir"
-    setfacl -m u:ghost:rx "$dir"
-    getfacl "$dir"
-
-    echo "success, now cd into '$dir' and run 'git clone repo .'"
-}
-
