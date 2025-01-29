@@ -2,6 +2,17 @@
 
 # https://contabo.com/blog/how-to-setup-a-software-firewall-in-linux-and-windows/
 
+if [ $EUID -ne 0 ]; then
+    echo "this script must be run as root" >&2
+    exit 1
+fi
+
+if ! dpkg -s iptables-persistent &>/dev/null
+then
+    echo "installing iptables-persistent..."
+    apt install iptables-persistent
+fi
+
 # Delete the current firewall setup:
 iptables -F
 
@@ -35,4 +46,10 @@ iptables -A INPUT -p udp --dport 53 -j ACCEPT
 iptables -A INPUT -p tcp --dport 53 -j ACCEPT
 
 # The next time your system starts, iptables will automatically reload the firewall rules:
-/sbin/iptables-save
+if [ -x /sbin/iptables-save ]
+then
+    /sbin/iptables-save > /etc/iptables/rules.v4
+else
+    echo "'iptables-save' command not found, firewall rules won't persist" >&2
+    exit 1
+fi
