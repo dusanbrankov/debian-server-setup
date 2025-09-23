@@ -11,23 +11,19 @@ esac
 # don't put duplicate lines or lines starting with space in the history.
 HISTCONTROL=ignoreboth
 HISTSIZE=1000
-HISTFILESIZE=3000
+HISTFILESIZE=10000
 HISTTIMEFORMAT="%Y/%m/%d %H:%M    "
-HISTIGNORE="h:htod:history:e:exit:c:clear:cd:-:..*:fg:j:ls:ll:l1:gl:gst:gs"
+HISTIGNORE="h:htod:history:e:exit:c:clear:-:..*:fg:j:ls:l:ll:l1:gl:gst:gs"
 
 [ -x /usr/bin/vim ] && export EDITOR=/usr/bin/vim
 
 # base directories for cd command
-CDPATH=.:~:/var/www
+CDPATH=.
 
 # append to the history file, don't overwrite it
 shopt -s histappend
 # review a command like `sudo !!` before it gets executed
 shopt -s histverify
-
-# check the window size after each command and, if necessary,
-# update the values of LINES and COLUMNS.
-# shopt -s checkwinsize
 
 # If set, the pattern "**" used in a pathname expansion context will
 # match all files and zero or more directories and subdirectories.
