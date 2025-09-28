@@ -1,0 +1,20 @@
+Get root and type dpkg-reconfigure locales and select the locale(s) you want to
+generate. At the end, you'll be asked which one should be the default. If you
+have users who access the system through ssh, it is recommended that you choose
+"None" as your default locale.
+
+        $ sudo dpkg-reconfigure locales
+
+This changes /etc/default/locale and /etc/locale.gen
+
+Run locale -a to get a list of the locale names suitable for use in environment
+variables. Note that the spellings are different from the ones presented in the
+dpkg-reconfigure list.
+
+Add a line like this to your /etc/profile file:
+
+        : "${LANG:=en_US.utf8}"; export LANG
+
+References:
+- https://wiki.debian.org/Locale
+- https://wiki.archlinux.org/title/Locale

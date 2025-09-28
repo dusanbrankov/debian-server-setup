@@ -1,6 +1,6 @@
 # Update and install packages:
     apt update && apt dist-upgrade
-    apt install -y vim git sudo iptables php-intl php-mbstring php-xml acl nodejs npm composer
+    apt install -y vim git sudo iptables php-intl php-mbstring php-mysqli php-xml acl nodejs npm composer locales-all
 
 # Add user:
     useradd -m -G sudo,systemd-journal -s /bin/bash darmok
