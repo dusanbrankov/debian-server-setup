@@ -64,21 +64,25 @@ sudo certbot certonly --nginx -d exmaple.com,www.exmaple.com --dry-run
 If the tests succeeded, we can generate the certificates:
 
 ```sh
-sudo certbot \
---nginx --agree-tos --redirect --hsts --staple-ocsp --must-staple \
--d example.com,www.example.com
+sudo certbot --nginx --agree-tos --redirect --hsts --staple-ocsp -d example.com,www.example.com
 ```
+
 -  --nginx: Use the Nginx authenticator and installer
 -  --agree-tos: Agree to Let’s Encrypt terms of service
 -  --redirect: Add 301 redirect.
 -  --uir: Add the “Content-Security-Policy: upgrade-insecure-requests” header to every HTTP response.
 -  --hsts: Add the Strict-Transport-Security header to every HTTP response.
 -  --staple-ocsp: Enables OCSP Stapling.
--  --must-staple: Adds the OCSP Must Staple extension to the certificate.
--  -d flag is followed by a list of domain names, separated by comma. You can add up to 100 domain names.
+-  --must-staple (**obsolete**): Adds the OCSP Must Staple extension to the certificate.
+-  -d flag is followed by a list of domain names, separated by comma.
 -  --email: Email used for registration and recovery contact.
 
-> Note: I initially ran this command with the --uir flag, which was not supported by Nginx. Since the certificates were successfully generated, I had to ran `sudo certbot install --cert-name example.com` to finish the setup.
+> !NOTE
+> Omit `--must-staple`
+> Error finalizing order :: OCSP must-staple extension is no longer available: see https://letsencrypt.org/2024/12/05/ending-ocsp
+> `--staple-oscp` should or must also be omitted, but not completely sure, check next time.
+
+> Note: I initially ran this command with the --uir flag, which was not supported by nginx. Since the certificates were successfully generated, I had to ran `sudo certbot install --cert-name example.com` to finish the setup.
 
 ### Automatic certificate renewal
 
