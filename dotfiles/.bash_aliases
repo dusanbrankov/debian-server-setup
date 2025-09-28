@@ -18,6 +18,7 @@ alias ....='cd ../../..'
 alias -- -='cd -'
 alias l1='ls -1'
 alias ll='ls -l'
+alias l='ls -l'
 alias la='ls -lA'
 
 # bookmarks
