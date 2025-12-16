@@ -119,3 +119,5 @@ mkwwwdir()
 
     echo "success, now cd into '$dir' and run 'git clone repo .'"
 }
+
+umask 0027
