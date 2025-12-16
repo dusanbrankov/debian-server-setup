@@ -9,11 +9,11 @@ fi
 export PATH=/usr/local/bin:$PATH
 
 # Define AWS CLI configuration file paths
-export AWS_CONFIG_FILE="/home/dusan/.aws/config"
-export AWS_SHARED_CREDENTIALS_FILE="/home/dusan/.aws/credentials"
+export AWS_CONFIG_FILE="$HOME/.aws/config"
+export AWS_SHARED_CREDENTIALS_FILE="$HOME/.aws/credentials"
 
 bucket=wunderbaumbucket
-mysql_cnf=/home/dusan/.my.cnf
+mysql_cnf=$HOME/.my.cnf
 
 databases=(
     ic_berlin
