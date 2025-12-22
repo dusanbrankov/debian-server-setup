@@ -97,6 +97,8 @@ if ! shopt -oq posix; then
   fi
 fi
 
+umask 0027
+
 # print all commands from today
 htod()
 {
@@ -109,15 +111,14 @@ htod()
 mkwwwdir()
 {
     local dir="$1"
+    local grp="$2"
+
+    if (( $# != 2 )); then
+        echo "usage: mkwwwdir DIR GROUP" >&2
+        return
+    fi
 
     sudo mkdir "$dir"
-    sudo chown "$USER":www-data "$dir"
-    chmod 2750 "$dir"
-    sudo setfacl -d -m u::rwX -m u:ghost:rX -m g::rX -m o::000 "$dir"
-    sudo setfacl -m u:ghost:rx "$dir"
-    getfacl "$dir"
-
-    echo "success, now cd into '$dir' and run 'git clone repo .'"
+    sudo chown "$USER:$grp" "$dir"
+    sudo chmod 2750 "$dir"
 }
-
-umask 0027
