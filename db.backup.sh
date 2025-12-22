@@ -17,7 +17,7 @@ mysql_cnf=$HOME/.my.cnf
 
 databases=(
     ic_berlin
-    wunderbaum_prod
+    wunderbaum
 )
 
 for db in "${databases[@]}"; do
