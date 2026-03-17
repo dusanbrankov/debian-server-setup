@@ -72,8 +72,8 @@ cat .ssh/id_ed25519.pub
 
 Add the public key to your GitHub account.
 
-You can follow the instructions in the GitHub documentation:<br>
-https://docs.github.com/en/authentication/connecting-to-github-with-ssh/adding-a-new-ssh-key-to-your-github-account
+You can follow the instructions in the [GitHub documentation](https://docs.github.com/en/authentication/connecting-to-github-with-ssh/adding-a-new-ssh-key-to-your-github-account).
+
 
 Copy SSH public key from local computer to server:
 
