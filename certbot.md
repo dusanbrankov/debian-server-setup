@@ -46,7 +46,7 @@ curl -I http://example.com/test.html
 Proceed, if the HTTP response code is 200. Otherwise, check file permissions
 and modify accordingly.
 
-File Permission Example:
+**File Permission Example**
 
 ```sh
 sudo chgrp -R www-data /var/www/example.com && sudo chmod 2750 "$_"
@@ -67,22 +67,18 @@ If the tests succeeded, we can generate the certificates:
 sudo certbot --nginx --agree-tos --redirect --hsts --staple-ocsp -d example.com,www.example.com
 ```
 
--  --nginx: Use the Nginx authenticator and installer
--  --agree-tos: Agree to Let’s Encrypt terms of service
--  --redirect: Add 301 redirect.
--  --uir: Add the “Content-Security-Policy: upgrade-insecure-requests” header to every HTTP response.
--  --hsts: Add the Strict-Transport-Security header to every HTTP response.
--  --staple-ocsp: Enables OCSP Stapling.
--  --must-staple (**obsolete**): Adds the OCSP Must Staple extension to the certificate.
--  -d flag is followed by a list of domain names, separated by comma.
--  --email: Email used for registration and recovery contact.
+-  `--nginx`: Use the Nginx authenticator and installer
+-  `--agree-tos`: Agree to Let’s Encrypt terms of service
+-  `--redirect`: Add 301 redirect.
+-  `--uir`: Add the “Content-Security-Policy: upgrade-insecure-requests” header to every HTTP response.
+-  `--hsts`: Add the Strict-Transport-Security header to every HTTP response.
+-  `--must-staple`: ~~Adds the OCSP Must Staple extension to the certificate.~~ (obsolete[^1])
+-  `--staple-ocsp`: Enables OCSP Stapling.[^2]
+-  `-d` flag is followed by a list of domain names, separated by comma.
+-  `--email`: Email used for registration and recovery contact.
 
-> !NOTE
-> Omit `--must-staple`
-> Error finalizing order :: OCSP must-staple extension is no longer available: see https://letsencrypt.org/2024/12/05/ending-ocsp
-> `--staple-oscp` should or must also be omitted, but not completely sure, check next time.
-
-> Note: I initially ran this command with the --uir flag, which was not supported by nginx. Since the certificates were successfully generated, I had to ran `sudo certbot install --cert-name example.com` to finish the setup.
+> [!NOTE]
+> I initially ran this command with the `--uir` flag, which was not supported by nginx. Since the certificates were successfully generated, I had to ran `sudo certbot install --cert-name example.com` to finish the setup.
 
 ### Automatic certificate renewal
 
@@ -140,8 +136,16 @@ sudo certbot certificates
 sudo certbot delete --cert-name example.com
 ```
 
-References:
+---
+
+**References**
+
 - https://eff-certbot.readthedocs.io/en/stable/index.html
 - https://chatgpt.com/c/674229b1-f93c-8003-b83f-38001a75d1aa
 - https://www.linuxbabe.com/ubuntu/nginx-lets-encrypt-ubuntu-certbot
 - https://serverfault.com/questions/896711/how-to-totally-remove-a-certbot-created-ssl-certificate
+
+**Footnotes**
+
+[^1]: Omit `--must-staple`; OCSP must-staple extension is no longer available (https://letsencrypt.org/2024/12/05/ending-ocsp)
+[^2]: The `--staple-oscp` flag should or must also be omitted, but not completely sure, check next time.
