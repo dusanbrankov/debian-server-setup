@@ -1,4 +1,4 @@
-# Initial Linux Server Setup
+# Linux Server Setup
 
 ## Introduction
 
@@ -8,7 +8,7 @@ All the instructions are based on a new Linux system with **Debian 12 (Bookworm)
 
 ## Setup
 
-### `# Package Management`
+### Package Management
 
 In addition to the networking and system administration packages, I also install extra packages for web development, such as PHP and MySQL. You can skip installing these if you don't need them.
 
@@ -17,7 +17,7 @@ apt update && apt dist-upgrade
 apt install -y vim git sudo openssh-client openssh-server iptables fail2ban acl locales-all php-intl php-mbstring php-mysqli php-xml composer nodejs npm shellcheck mysql-server mysql-client
 ```
 
-### `# User management`
+### User management
 
 Add a user with low privileges for daily use and administration purposes. Later, we will be hardening shell access, so this user will be the only one with access to the server. The user will also be added to the 'systemd-journal' group, which will give them access to system logs without requiring root privileges.
 
@@ -29,7 +29,7 @@ passwd USERNAME
 useradd --system --shell /bin/false SYS_USER
 ```
 
-### `# System security`
+### System security
 
 Firstly, let's switch to the user that we have just created:
 
@@ -100,7 +100,7 @@ sudo ./firewall.rules.sh
 > [!IMPORTANT]
 > After running the script, keep your current session on the server alive and try logging in via SSH as USERNAME from your local machine!
 
-### `# System settings`
+### System settings
 
 #### Set timezone
 
@@ -161,7 +161,7 @@ References:
 - https://wiki.debian.org/Locale
 - https://wiki.archlinux.org/title/Locale
 
-### `# Task automation`
+### Task automation
 
 #### Automatic security updates
 
@@ -196,7 +196,7 @@ sudo dpkg-reconfigure -plow unattended-upgrades
 ```
 ---
 
-### `# Additional configuration`
+### Additional configuration
 
 The following steps are optional and depend on your use case. For example, if you want to run a web server, you can install Apache and PHP, and configure them as needed.
 
