@@ -1,91 +1,120 @@
-# Configuring a Debian server from scratch
+# Initial Linux Server Setup
 
 ## Introduction
 
-This is a guide to configure a bare-metal Linux/Debian server from the ground. It covers measures to secure the server, install and configure commonly used software, and automate tasks such as running security updates.
+This is a guide to configure a bare-metal server on Debian systems from scratch. It covers how to secure the server, install and configure commonly used software, and automate tasks such as running security updates.
 
-It is intended to be used as a **reference for myself**, so please be aware that it is partly incomplete and may not be suitable for all use cases. It is *not* intended to be a comprehensive guide to server configuration, but rather a good starting point for further customization.
+It was originally intended to be used as a **reference for myself**, so please be aware that it is incomplete in places and may not be suitable for all use cases. I would also like to emphasise that I am not a security expert. While I always try to follow best practice, I cannot guarantee that your server will be secure after following this guide.
 
-I also want to emphasize that I am not a security expert, and while I always try to give my best to follow best practices, I cannot guarantee that your server will be secure after following this guide.
-
-Also, to keep the guide concise and easy to follow, I will not explain the given commands. If you are not familiar with a command, I recommend looking it up in the manual, instead of running them blindly.
+To keep the guide concise and easy to follow, I will not explain the commands given. If you are unfamiliar with a command, I recommend looking it up in the manual instead of running it without understanding.
 
 ## Prerequisites
 
-This guide assumes that the reader has:
+This guide assumes that you have:
 
 - a basic understanding of the GNU/Linux command line and Bash
 - an unmanaged VPS or a physical server with a fresh Debian installation
 - root access to the server via SSH
 
-All the instructions are based on a new Linux system with **Debian 12 (Bookworm)** installed. If a different Debian release is used, some commands may not be available and need to be installed or adapted.
+All the instructions are based on a new Linux system with **Debian 12 (Bookworm)** installed. If a different Debian release or distribution is used, some commands may be unavailable and will need to be installed or adapted.
 
-## Approach
+## Setup
 
-### 1. Update and install packages
+### `# Package Management`
+
+In addition to the networking and system administration packages, I also install extra packages for web development, such as PHP and MySQL. You can skip installing these if you don't need them.
 
 ```sh
 apt update && apt dist-upgrade
-apt install -y vim git sudo iptables php-intl php-mbstring php-mysqli php-xml acl nodejs npm composer locales-all shellcheck mysql-server mysql-client
+apt install -y vim git sudo openssh-client openssh-server iptables fail2ban acl locales-all php-intl php-mbstring php-mysqli php-xml composer nodejs npm shellcheck mysql-server mysql-client
 ```
 
-### 2. Add users
+### `# User management`
+
+Add a user with low privileges for daily use and administration purposes. Later, we will be hardening shell access, so this user will be the only one with access to the server. The user will also be added to the 'systemd-journal' group, which will give them access to system logs without requiring root privileges.
 
 ```sh
 useradd -m -G sudo,systemd-journal -s /bin/bash USERNAME
 passwd USERNAME
 
-# Add systemd user:
+# Add systemd user if needed (e.g. for running web apps as a service):
 useradd --system --shell /bin/false SYS_USER
 ```
 
-### 3. Configure SSH and firewall
+### `# System security`
 
-First, switch to the user we just created:
+Firstly, let's switch to the user that we have just created:
 
 ```sh
 su -l USERNAME
 ```
 
-#### SSH
+#### Configure SSH
 
 ```sh
 mkdir ~/.ssh && chmod 700 $_
 ```
 
-Generate SSH key and add it to the SSH agent:
+Generate an SSH key pair and add the public key to the server. This will allow us to log in to the server using public-key authentication.
 
 ```sh
 ssh-keygen -t ed25519 -C "your@email.com"
+```
+
+Optionally, add the SSH key to the SSH agent to avoid having to enter the passphrase each time you connect to the GitHub server.
+
+```sh
 eval "$(ssh-agent -s)"
 ssh-add .ssh/id_ed25519
 ssh -T git@github.com
-cat .ssh/id_ed25519.pub  # add the key to your GitHub account
+cat .ssh/id_ed25519.pub
 ```
+
+Add the public key to your GitHub account.
+
+You can follow the instructions in the GitHub documentation:<br>
+https://docs.github.com/en/authentication/connecting-to-github-with-ssh/adding-a-new-ssh-key-to-your-github-account
 
 Copy SSH public key from local computer to server:
 
 ```sh
+# Run this command on your local machine:
 ssh-copy-id -i .ssh/id_ed25519.pub USERNAME@IP_ADDRESS
 ```
 
-Now the `sshd_config` file can be changed:
+Now, let's restrict shell access by editing the `sshd_config` file. I prefer to back up the original file before making any changes, so that I can easily compare it with the modified file using the `diff` command.
 
 ```sh
-sudo vim /etc/ssh/sshd_config # check original file with diff command
+sudo cp /etc/ssh/sshd_config{,.bak}
+sudo vim /etc/ssh/sshd_config
 sudo systemctl restart ssh
 ```
 
-#### Firewall
+Here are the changes, I usually make to the `sshd_config` file:
+
+```
+Port 832 
+PasswordAuthentication no
+PermitEmptyPasswords no
+UsePAM no
+PermitRootLogin no
+AllowUsers YOUR_USERNAME
+```
+
+Changing the default port is optional and does not necessarily make your server more secure, but it significantly reduces the number of automated login attempts, since bots are programmed to access the default SSH port 22.
+
+#### Configure firewall
 
 ```sh
 sudo ./firewall.rules.sh
 ```
 
 > [!IMPORTANT]
-> Keep session alive and try to log in as USERNAME from another terminal!
+> After running the script, keep your current session on the server alive and try logging in via SSH as USERNAME from your local machine!
 
-### 4. Set the system time
+### `# System settings`
+
+#### Set timezone
 
 First, see what timezones are available with the `list-timezones` command:
 
@@ -119,7 +148,9 @@ RTC in local TZ: no
 
 The first line should display the correct time.
 
-### 5. Install unattended upgrades for automatic software updates
+### `# Task automation`
+
+#### Automatic security updates
 
 ```sh
 sudo apt update
@@ -152,9 +183,9 @@ sudo dpkg-reconfigure -plow unattended-upgrades
 ```
 ---
 
-### Optional steps
+### `# Additional configuration`
 
-The following steps are optional and depend on your use case. For example, if you want to run a web server, you can install Apache and PHP, and configure them as needed. If you want to run a Node.js application, you can install Node.js and npm, and configure them as needed.
+The following steps are optional and depend on your use case. For example, if you want to run a web server, you can install Apache and PHP, and configure them as needed.
 
 <details>
 <summary>Configure Apache and PHP</summary>
@@ -235,6 +266,8 @@ You can find the instructions inside [certbot.md](./certbot.md).
 
 <details>
 <summary>Contabo Object-Storage configuration</summary>
+
+This is an example of how to set up a daily backup of a MySQL database to Contabo Object Storage using the AWS CLI. I chose Contabo as my hosting provider, and the list of commands is very specific to their Object Storage service, but the general idea can be applied to any other cloud storage provider that supports S3-compatible APIs.
 
 ```sh
 # Install awscli
