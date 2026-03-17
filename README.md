@@ -41,13 +41,8 @@ su -l USERNAME
 mkdir ~/.ssh && chmod 700 $_
 ```
 
-Generate an SSH key pair and add the public key to the server. This will allow us to log in to the server using public-key authentication.
-
-```sh
-ssh-keygen -t ed25519 -C "your@email.com"
-```
-
-Optionally, add the SSH key to the SSH agent to avoid having to enter the passphrase each time you connect to the GitHub server.
+<details>
+<summary>Optionally, add the SSH key to the SSH agent to avoid having to enter the passphrase each time you connect to the GitHub server.</summary>
 
 ```sh
 eval "$(ssh-agent -s)"
@@ -59,12 +54,15 @@ cat .ssh/id_ed25519.pub
 Add the public key to your GitHub account.
 
 You can follow the instructions in the [GitHub documentation](https://docs.github.com/en/authentication/connecting-to-github-with-ssh/adding-a-new-ssh-key-to-your-github-account).
-
+</details>
 
 Copy SSH public key from local computer to server:
 
 ```sh
-# Run this command on your local machine:
+# Generate an SSH key pair, if you don't have one already.
+ssh-keygen -t ed25519 -C "your@email.com"
+
+# Copy the public key to the server.
 ssh-copy-id -i .ssh/id_ed25519.pub USERNAME@IP_ADDRESS
 ```
 
