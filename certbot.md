@@ -128,7 +128,7 @@ curl -4 icanhazip.com
 To also check which name servers are used, run:
 
 ```sh
-dig clonesintergalactic.com NS +short
+dig example.com NS +short
 ```
 
 #### Remove existing certificates
