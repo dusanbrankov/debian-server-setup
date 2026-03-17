@@ -5,7 +5,7 @@ This guide goes through the setup process of `certbot` with nginx already instal
 ## Installation
 
 ```sh
-sudo apt install certbot python3-certbot-apache
+sudo apt install certbot python3-certbot-nginx
 ```
 
 ## Nginx configuration
