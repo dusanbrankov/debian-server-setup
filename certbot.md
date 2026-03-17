@@ -141,6 +141,7 @@ sudo certbot delete --cert-name example.com
 ```
 
 References:
+- https://eff-certbot.readthedocs.io/en/stable/index.html
 - https://chatgpt.com/c/674229b1-f93c-8003-b83f-38001a75d1aa
 - https://www.linuxbabe.com/ubuntu/nginx-lets-encrypt-ubuntu-certbot
 - https://serverfault.com/questions/896711/how-to-totally-remove-a-certbot-created-ssl-certificate
