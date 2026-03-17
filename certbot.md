@@ -49,7 +49,7 @@ and modify accordingly.
 File Permission Example:
 
 ```sh
-sudo setfacl -dR -m g:www-data:rwX /var/www/example.com
+sudo chgrp -R www-data /var/www/example.com && sudo chmod 2750 "$_"
 ```
 
 ## Certbot setup
