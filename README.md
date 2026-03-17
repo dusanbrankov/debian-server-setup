@@ -1,10 +1,8 @@
 # Linux Server Setup
 
-## Introduction
+This is a guide to configure a Linux server from scratch. It is a **reference for myself**, so please be aware that it is incomplete in places and may not be suitable for all use cases.
 
-This is a guide to configure a server (unmanaged VPS) on Debian systems from scratch. It was originally intended to be used as a **reference for myself**, so please be aware that it is incomplete in places and may not be suitable for all use cases.
-
-All the instructions are based on a new Linux system with **Debian 12 (Bookworm)** installed. If a different Debian release or distribution is used, some commands may be unavailable and will need to be installed or adapted.
+The instructions are based on a new Linux system with **Debian 12 (Bookworm)** installed. If a different Debian release or distribution is used, some commands may be unavailable and configuration files may be located in different places.
 
 ## Setup
 
