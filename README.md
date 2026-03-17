@@ -2,19 +2,7 @@
 
 ## Introduction
 
-This is a guide to configure a bare-metal server on Debian systems from scratch. It covers how to secure the server, install and configure commonly used software, and automate tasks such as running security updates.
-
-It was originally intended to be used as a **reference for myself**, so please be aware that it is incomplete in places and may not be suitable for all use cases. I would also like to emphasise that I am not a security expert. While I always try to follow best practice, I cannot guarantee that your server will be secure after following this guide.
-
-To keep the guide concise and easy to follow, I will not explain the commands given. If you are unfamiliar with a command, I recommend looking it up in the manual instead of running it without understanding.
-
-## Prerequisites
-
-This guide assumes that you have:
-
-- a basic understanding of the GNU/Linux command line and Bash
-- an unmanaged VPS or a physical server with a fresh Debian installation
-- root access to the server via SSH
+This is a guide to configure a server (unmanaged VPS) on Debian systems from scratch. It was originally intended to be used as a **reference for myself**, so please be aware that it is incomplete in places and may not be suitable for all use cases.
 
 All the instructions are based on a new Linux system with **Debian 12 (Bookworm)** installed. If a different Debian release or distribution is used, some commands may be unavailable and will need to be installed or adapted.
 
