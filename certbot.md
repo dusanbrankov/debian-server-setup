@@ -41,10 +41,10 @@ Test if domain is available:
 ```sh
 echo '<h1>Success</h1>' > /var/www/example.com/test.html
 curl -I http://example.com/test.html
+```
 
 Proceed, if the HTTP response code is 200. Otherwise, check file permissions
 and modify accordingly.
-```
 
 File Permission Example:
 
