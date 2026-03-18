@@ -1,48 +1,54 @@
-# Linux Server Setup
+# Debian Server Setup
 
-This is a guide to configure a Linux server from scratch. It is a **reference for myself**, so please be aware that it is incomplete in places and may not be suitable for all use cases.
+This is a collection of scripts and configuration files that I use to set up and maintain my Debian server.
 
-The instructions are based on a new Linux system with **Debian 12 (Bookworm)** installed. If a different Debian release or distribution is used, some commands may be unavailable and configuration files may be located in different places.
+Below are instructions on how to use these files to configure a new Debian server. The instructions are based on my personal preferences and may not be suitable for everyone. Feel free to modify the commands, scripts and configuration files to fit your needs.
 
 ## Setup
 
-### Package Management
+### Package management
 
-In addition to the networking and system administration packages, I also install extra packages for web development, such as PHP and MySQL. You can skip installing these if you don't need them.
+Update existing packages and install commonly used packages:
 
 ```sh
-apt update && apt dist-upgrade
-apt install -y vim git sudo openssh-client openssh-server iptables fail2ban acl locales-all php-intl php-mbstring php-mysqli php-xml composer nodejs npm shellcheck mysql-server mysql-client
+apt update && apt full-upgrade
+apt install -y git sudo vim openssh-client openssh-server iptables fail2ban acl locales-all
 ```
 
 ### User management
 
-Add a user with low privileges for daily use and administration purposes. Later, we will be hardening shell access, so this user will be the only one with access to the server. The user will also be added to the 'systemd-journal' group, which will give them access to system logs without requiring root privileges.
+Add a user with low privileges for daily use and administration purposes. Later, we will be hardening shell access, so this user will be the only one with access to the server.
+
+The user will also be added to the 'systemd-journal' group, which will give them access to system logs without requiring root privileges.
 
 ```sh
 useradd -m -G sudo,systemd-journal -s /bin/bash USERNAME
 passwd USERNAME
-
-# Add systemd user if needed (e.g. for running web apps as a service):
-useradd --system --shell /bin/false SYS_USER
 ```
 
-### System security
+### SSH configuration
 
-Firstly, let's switch to the user that we have just created:
+Switch to the new user and configure SSH.
 
 ```sh
 su -l USERNAME
-```
-
-#### Configure SSH
-
-```sh
 mkdir ~/.ssh && chmod 700 $_
 ```
 
+Copy SSH public key from local computer to server:
+
+```sh
+# Generate an SSH key pair, if one doesn't exist already.
+# ssh-keygen -t ed25519 -C "your@email.com"
+
+# Copy the public key to the server.
+ssh-copy-id -i .ssh/id_ed25519.pub USERNAME@IP_ADDRESS
+```
+
+Optionally, add the SSH key to the SSH agent to avoid having to enter the passphrase each time you connect to the GitHub server.
+
 <details>
-<summary>Optionally, add the SSH key to the SSH agent to avoid having to enter the passphrase each time you connect to the GitHub server.</summary>
+<summary>Details</summary>
 
 ```sh
 eval "$(ssh-agent -s)"
@@ -56,20 +62,10 @@ Add the public key to your GitHub account.
 You can follow the instructions in the [GitHub documentation](https://docs.github.com/en/authentication/connecting-to-github-with-ssh/adding-a-new-ssh-key-to-your-github-account).
 </details>
 
-Copy SSH public key from local computer to server:
+Now, let's restrict shell access by editing the `sshd_config` file. I prefer to back up the original file before making any changes, so that I can easily compare it with the modified one with the `diff` command.
 
 ```sh
-# Generate an SSH key pair, if you don't have one already.
-ssh-keygen -t ed25519 -C "your@email.com"
-
-# Copy the public key to the server.
-ssh-copy-id -i .ssh/id_ed25519.pub USERNAME@IP_ADDRESS
-```
-
-Now, let's restrict shell access by editing the `sshd_config` file. I prefer to back up the original file before making any changes, so that I can easily compare it with the modified file using the `diff` command.
-
-```sh
-sudo cp /etc/ssh/sshd_config{,.bak}
+sudo cp /etc/ssh/sshd_config{,.orig}
 sudo vim /etc/ssh/sshd_config
 sudo systemctl restart ssh
 ```
@@ -77,64 +73,55 @@ sudo systemctl restart ssh
 Here are the changes, I usually make to the `sshd_config` file:
 
 ```
-Port 832 
+Port 836
 PasswordAuthentication no
 PermitEmptyPasswords no
 UsePAM no
 PermitRootLogin no
-AllowUsers YOUR_USERNAME
+AllowUsers USERNAME
 ```
 
-Changing the default port is optional and does not necessarily make your server more secure, but it significantly reduces the number of automated login attempts, since bots are programmed to access the default SSH port 22.
+This essentially disables password authentication, root login, and allows only the specified user to log in via SSH. The custom port was arbitrarily chosen to be 836, any port that is not likely to be used by other services should work fine. To check if a port is in use, run `netstat -tuln` or `ss -tuln`.
 
-#### Configure firewall
+> **Note:** Changing the default port does not necessarily make your server more secure, but it significantly reduces the number of automated login attempts, since bots are usually programmed to access the default SSH port 22.
+
+### Firewall configuration
+
+I prefer to use `iptables` for firewall configuration. In the script below, I set up rules to allow incoming traffic on the earlier configured SSH port 836, so this may need to be changed if a different SSH port was chosen.
 
 ```sh
 sudo ./firewall.rules.sh
 ```
 
-> [!IMPORTANT]
-> After running the script, keep your current session on the server alive and try logging in via SSH as USERNAME from your local machine!
+> **Important**: After running the script, keep your current session on the server alive and try logging in via SSH as USERNAME from your local machine. Otherwise, if there is a mistake in the firewall rules, you may lock yourself out of the server.
 
-### System settings
+### Date and time
 
-#### Set timezone
+Setting the correct timezone ensures that logging, scheduling and other time-related functions work correctly.
 
-First, see what timezones are available with the `list-timezones` command:
+> **Note:** This section is incomplete and will be updated in the future.
+
+Show the current date and time settings:
+
+```sh
+timedatectl
+```
+
+To choose a different timezone, look for the correct one in the list of available timezones:
 
 ```sh
 timedatectl list-timezones
 ```
 
-This will list the timezones available on your system. When you find the one that matches the location of your server, you can set it by using the `set-timezone` option:
+Then, set the timezone:
 
 ```sh
-sudo timedatectl set-timezone zone
+sudo timedatectl set-timezone AREA/LOCATION
 ```
 
-To ensure that your machine is using the correct time now, use the timedatectl command alone, or with the status option. The display will be the same:
+### Locale settings
 
-```sh
-timedatectl status
-```
-
-Example output:
-
-```
-Local time: Fri 2021-07-09 14:44:30 EDT
-Universal time: Fri 2021-07-09 18:44:30 UTC
-RTC time: Fri 2021-07-09 18:44:31
-Time zone: America/New_York (EDT, -0400)
-System clock synchronized: yes
-NTP service: active
-RTC in local TZ: no
-```
-
-The first line should display the correct time.
-
-#### Set locale
-
-Select the locale(s) you want to generate. At the end, you'll be asked which one should be the default. If you have users who access the system through ssh, it is recommended that you choose "None" as your default locale.
+Select the locale you want to generate. At the end, you'll be asked which one should be the default. If you have users who access the system through ssh, it is recommended that you choose "None" as your default locale.
 
 ```sh
 sudo dpkg-reconfigure locales
@@ -142,9 +129,7 @@ sudo dpkg-reconfigure locales
 
 This changes `/etc/default/locale` and `/etc/locale.gen`.
 
-Run `locale -a` to get a list of the locale names suitable for use in environment
-variables. Note that the spellings are different from the ones presented in the
-dpkg-reconfigure list.
+Run `locale -a` to get a list of the locale names suitable for use in environment variables. Note that the spellings are different from the ones presented in the dpkg-reconfigure list.
 
 Add a line like this to your `/etc/profile` file:
 
@@ -157,9 +142,7 @@ References:
 - https://wiki.debian.org/Locale
 - https://wiki.archlinux.org/title/Locale
 
-### Task automation
-
-#### Automatic security updates
+### Automatic updates
 
 ```sh
 sudo apt update
@@ -190,6 +173,7 @@ sudo dpkg-reconfigure -plow unattended-upgrades
 # 2025-12-17 10:59:28,942 WARNING - Unable to monitor PrepareForShutdown() signal, polling instead.
 # 2025-12-17 10:59:28,943 WARNING - To enable monitoring the PrepareForShutdown() signal instead of polling please install the python3-gi package
 ```
+
 ---
 
 ### Additional configuration
@@ -198,6 +182,12 @@ The following steps are optional and depend on your use case. For example, if yo
 
 <details>
 <summary>Configure Apache and PHP</summary>
+
+Install Apache, PHP and other necessary packages:
+
+```sh
+sudo apt install -y php-intl php-mbstring php-mysqli php-xml composer
+```
 
 ```sh
 sudo vim sites-available/000-default.conf
@@ -218,22 +208,16 @@ sudo a2enmod proxy_http
 </details>
 
 <details>
-<summary>Configure npm</summary>
+<summary>MySQL</summary>
 
-##### Fix [`npm` permission issue](https://docs.npmjs.com/resolving-eacces-permissions-errors-when-installing-packages-globally)
+Install MySQL server and client:
 
 ```sh
-mkdir ~/.npm-global
-npm config set prefix '~/.npm-global'
-
-echo 'export PATH="$HOME"/.npm-global/bin:$PATH' >> ~/.profile
-source ~/.profile
-echo $PATH | grep npm
+sudo apt install -y  mysql-server mysql-client
 ```
-</details>
 
-<details>
-<summary>MySQL</summary>
+> For installing MariaDB instead:
+> https://www.digitalocean.com/community/tutorials/how-to-install-mariadb-on-ubuntu-20-04
 
 ##### Add database and user
 
@@ -257,7 +241,34 @@ mysql -u root -p DB_NAME < DB_NAME.data
 </details>
 
 <details>
+<summary>NPM</summary>
+
+Install Node.js and npm:
+
+```sh
+sudo apt install -y nodejs npm
+```
+
+##### Fix [`npm` permission issue](https://docs.npmjs.com/resolving-eacces-permissions-errors-when-installing-packages-globally)
+
+```sh
+mkdir ~/.npm-global
+npm config set prefix '~/.npm-global'
+
+echo 'export PATH="$HOME"/.npm-global/bin:$PATH' >> ~/.profile
+source ~/.profile
+echo $PATH | grep npm
+```
+</details>
+
+<details>
 <summary>Add systemd services to run web apps</summary>
+
+
+```sh
+# Add systemd user if needed (e.g. for running web apps as a service):
+useradd --system --shell /bin/false SYS_USER
+```
 
 ```sh
 # add systemd service file to /etc/systemd/system/
