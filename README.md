@@ -26,6 +26,15 @@ useradd -m -G sudo,systemd-journal -s /bin/bash USERNAME
 passwd USERNAME
 ```
 
+#### Configuration files
+
+Download this repository and distribute the configuration in the home directory of the new user. The `mklinks.sh` script will create symbolic links to the configuration files in the home directory.
+
+```sh
+git clone https://github.com/dusanbrankov/debian-server-setup.git
+./debian-server-setup/mklinks.sh
+```
+
 ### SSH configuration
 
 Switch to the new user and configure SSH.
