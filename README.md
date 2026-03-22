@@ -1,8 +1,8 @@
 # Debian Server Setup
 
-This is a collection of scripts and configuration files that I use to set up and maintain my Debian server.
+A collection of scripts and configuration files that I use to set up and maintain my Debian server.
 
-Below are instructions on how to use these files to configure a new Debian server. The instructions are based on my personal preferences and may not be suitable for everyone. Feel free to modify the commands, scripts and configuration files to fit your needs.
+Below are some high-level instructions on how to set up a new Debian server. These instructions are intended as a useful starting point and are based on my personal experience and preferences.
 
 ## Setup
 
@@ -26,6 +26,14 @@ useradd -m -G sudo,systemd-journal -s /bin/bash USERNAME
 passwd USERNAME
 ```
 
+Log in as the new user:
+
+```sh
+su -l USERNAME
+```
+
+Note that from this point on, **all subsequent commands** are assumed to be run by the new user.
+
 #### Configuration files
 
 Download this repository and distribute the configuration in the home directory of the new user. The `mklinks.sh` script will create symbolic links to the configuration files in the home directory.
@@ -36,13 +44,6 @@ git clone https://github.com/dusanbrankov/debian-server-setup.git
 ```
 
 ### SSH configuration
-
-Switch to the new user and configure SSH.
-
-```sh
-su -l USERNAME
-mkdir ~/.ssh && chmod 700 $_
-```
 
 Copy SSH public key from local computer to server:
 
@@ -66,12 +67,12 @@ ssh -T git@github.com
 cat .ssh/id_ed25519.pub
 ```
 
-Add the public key to your GitHub account.
+Add the public key `id_ed25519.pub` to your GitHub account.
 
-You can follow the instructions in the [GitHub documentation](https://docs.github.com/en/authentication/connecting-to-github-with-ssh/adding-a-new-ssh-key-to-your-github-account).
+You can find complete instructions in the [GitHub documentation](https://docs.github.com/en/authentication/connecting-to-github-with-ssh/adding-a-new-ssh-key-to-your-github-account).
 </details>
 
-Now, let's restrict shell access by editing the `sshd_config` file. I prefer to back up the original file before making any changes, so that I can easily compare it with the modified one with the `diff` command.
+Now, let's restrict shell access by editing the `sshd_config` file. I prefer to back up the original file before making any changes, so that I can easily compare it with the modified one using the `diff` command.
 
 ```sh
 sudo cp /etc/ssh/sshd_config{,.orig}
