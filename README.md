@@ -40,7 +40,7 @@ Download this repository and distribute the configuration in the home directory 
 
 ```sh
 git clone https://github.com/dusanbrankov/debian-server-setup.git
-./debian-server-setup/mklinks.sh
+./debian-server-setup/scripts/mklinks
 ```
 
 ### SSH configuration
@@ -100,7 +100,7 @@ This essentially disables password authentication, root login, and allows only t
 I prefer to use `iptables` for firewall configuration. In the script below, I set up rules to allow incoming traffic on the earlier configured SSH port 836, so this may need to be changed if a different SSH port was chosen.
 
 ```sh
-sudo ./firewall.rules.sh
+sudo ./debian-server-setup/scripts/firewall.rules
 ```
 
 > **Important**: After running the script, keep your current session on the server alive and try logging in via SSH as USERNAME from your local machine. Otherwise, if there is a mistake in the firewall rules, you may lock yourself out of the server.
