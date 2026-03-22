@@ -83,14 +83,6 @@ if ! getent group "$group" >/dev/null 2>&1; then
 	error "group '$group' doesn't exist"
 fi
 
-commands=(setfacl getfacl)
-
-for cmd in "${commands[@]}"; do
-	if ! command -v "$cmd" >/dev/null 2>&1; then
-		error "missing command: $cmd"
-	fi
-done
-
 # Create directory and set permissions
 mkdir "$dir" || exit
 chown -c "$user:$group" "$dir"
@@ -98,6 +90,12 @@ chmod -c 2750 "$dir"
 
 # Set permissions for given system user
 if [ -n "$sysuser" ]; then
+	for cmd in setfacl getfacl; do
+		if ! command -v "$cmd" >/dev/null 2>&1; then
+			error "missing command: $cmd"
+		fi
+	done
+
 	setfacl -d -m u:"$sysuser":rX "$dir"
 	setfacl -m u:"$sysuser":rX "$dir"
 	getfacl "$dir"
